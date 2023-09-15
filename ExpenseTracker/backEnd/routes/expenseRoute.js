@@ -1,3 +1,4 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
 const expense = require('../models/expenseModel');
@@ -17,6 +18,7 @@ router.post('/add', async (req, res) => {
     res.sendStatus(400).json({ error: error.message });
   }
 });
+
 router.get('/all', async (req, res) => {
   try {
     const expenseList = await expense.find();
@@ -25,6 +27,7 @@ router.get('/all', async (req, res) => {
     res.sendStatus(400).json({ error: error.message });
   }
 });
+
 router.delete('/:id', async (req, res) => {
   try {
     console.log(req.params.id);

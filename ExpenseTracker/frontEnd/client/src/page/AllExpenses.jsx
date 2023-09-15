@@ -42,26 +42,22 @@ const styles = () => ({
     alignItems: 'center',
   },
 });
-
 const formatYearMonth = (year, month) => {
   const monthAbbreviation = format(new Date(year, month - 1, 1), 'MMM');
   return `${year} ${monthAbbreviation}`;
 };
-
 const AllExpenses = () => {
   const [expenses, setExpenses] = useState([]);
   //const [totalAmount, setTotalAmount] = useState({});
   const [monthlyTotals, setMonthlyTotals] = useState([]);
-  
   const fetchMonthlyExpenses = () => {
     axios
       .get('http://localhost:8000/api/expenses/monthlyExpenditure')
       .then((response) => {
         // Assuming your response contains fields like totalSpent, totalReceived, and totalAmount
         //const { totalSpent, totalReceived } = response.data;
-		
-		const formattedData = response.data.map((item) => ({
-          ...item,formattedDate: formatYearMonth(item._id.year, item._id.month)    
+    const formattedData = response.data.map((item) => ({
+          ...item,formattedDate: formatYearMonth(item._id.year, item._id.month)
         }))
         console.log(response.data);
         setMonthlyTotals(formattedData);
@@ -128,7 +124,10 @@ const AllExpenses = () => {
           {expenses.map((expense) => (
             <TableRow key={expense._id}>
               <TableCell>{expense.description}</TableCell>
-              <TableCell>{expense.amount}</TableCell>
+             
+			  <TableCell style={expense.spentReceived === 'Spent' ? {color: 'red'} : {color: 'black'}}>
+              {expense.spentReceived === 'Spent' ? `-${Math.abs(expense.amount)}` : `${expense.amount}`}
+             </TableCell>
               <TableCell>{expense.spentReceived}</TableCell>
               <TableCell>{expense.category}</TableCell>
               <TableCell>{expense?.expenditureDate ? format(new Date(expense.expenditureDate), 'MM/dd/yyyy'): '--'}</TableCell>
@@ -166,7 +165,7 @@ const AllExpenses = () => {
         <TableBody>
           {monthlyTotals.map((expense) => (
             <TableRow key={expense._id}>
-			        <TableCell>{expense.formattedDate}</TableCell>
+              <TableCell>{expense.formattedDate}</TableCell>
               <TableCell>{expense.spentAmount}</TableCell>
               <TableCell>{expense.receivedAmount}</TableCell>
             </TableRow>

@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@ellucian/react-design-system/core/styles';
@@ -28,11 +29,34 @@ const EditExpenses = ()=>{
     let { id } = useParams();
     const history = useHistory();
     const [formData, setFormData] = useState({});
+	   const errorInitialValue = {
+        amount : '',
+        description : ''
+    }
+    const [errorObj, setErrorObj]= useState(errorInitialValue)
+   
     const handleChange = (name, value) => {
         const newFormData = {...formData, ...{[name]: value}};
         setFormData(newFormData);
     }
+	
+	    const validate  = () => {
+        let err = {...errorInitialValue};
+        const result = Object.keys(errorInitialValue).map((eachProperty) => {
+            if(['', null , undefined].includes(formData?.[eachProperty])){
+                err[eachProperty] = `${eachProperty} field is required`;
+                return false
+            }
+            return true
+        })
+        setErrorObj(err);
+        return result.every((eachResult) => Boolean(eachResult))
+    }
+	
     const onSubmit =  () => {
+	    const isValid = validate();
+        console.log(isValid);
+        if(isValid) {
         axios
             .patch(`http://localhost:8000/api/expenses/edit/${formData._id}`, formData)
             .then((response) => {
@@ -40,8 +64,8 @@ const EditExpenses = ()=>{
                 console.log('created Successfully'+response);
             })
             .catch((error) => console.error('creating Record:', error));
+		}
         };
-
         const expenseData =  () => {
             axios
                 .get(`http://localhost:8000/api/expenses/${id}`, formData)
@@ -59,9 +83,15 @@ const EditExpenses = ()=>{
                 <form name='demo-contact-form'>
                     <FormControl id={`${customId}_Container`} component='fieldset'>
                        {/* <TextField name='_id' label='id' onChange={(event) => handleChange('_id', event.target.value)} required className='contact-input-field'  hidden /> */}
-                        <TextField name='description' value={formData.description} label='Description' onChange={(event) => handleChange('description', event.target.value)} required className='contact-input-field'/>
-                        <TextField name='amount' value={formData.amount} label='Amount' className='contact-input-field' onChange={(event) => handleChange('amount', event.target.value)} />
-                        <Dropdown name='spentReceived'
+                       
+                       <TextField style={{marginBottom:'1rem'}} name='description' error={errorObj.description !== ''} helperText={errorObj.description} value={formData.description} label='Description' onChange={(event) => handleChange('description', event.target.value)} required className='contact-input-field'/>
+
+                        <div>
+                        <TextField style={{marginBottom:'1rem'}} name='amount' required error={errorObj.amount !== ''} helperText={errorObj.amount} value={formData.amount} label='Amount' className='contact-input-field' onChange={(event) => handleChange('amount', event.target.value)} />
+                        </div>
+
+                        <div>
+                        <Dropdown style={{marginBottom:'1rem'}} name='spentReceived'
                         label="Spent/Received" value={formData.spentReceived}
                         className='contact-input-field' onChange={(event) => handleChange('spentReceived', event.target.value)} >
                         {['Spent','Recieved'].map(option => {
@@ -74,7 +104,10 @@ const EditExpenses = ()=>{
                             );
                         })}
                     </Dropdown>
-                    <Dropdown name='category'
+                    </div>
+
+                    <div>
+                    <Dropdown style={{marginBottom:'1rem'}} name='category'
                         label="Category" value={formData.category}
                         className='contact-input-field' onChange={(event) => handleChange('category', event.target.value)} >
                         {['Received Income', 'Personal Spend', 'Academic Spend'].map(option => {
@@ -87,17 +120,17 @@ const EditExpenses = ()=>{
                             );
                         })}
                     </Dropdown>
-        
-                        <Button type='Button' onClick={onSubmit}>Update Expenses</Button>
+                    </div>
+
+                    <div>
+                        <Button style={{marginBottom:'2rem'}} type='Button' onClick={onSubmit}>Update Expenses</Button>
+                        </div>
                     </FormControl>
                 </form>
             </div>
         );
     };
-
     EditExpenses.propTypes = {
         classes: PropTypes.object.isRequired,
       };
-
 export default withStyles(styles)(EditExpenses);
-
